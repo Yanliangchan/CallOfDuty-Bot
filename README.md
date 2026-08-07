@@ -17,7 +17,7 @@ Sunday at 8:00 PM (Asia/Singapore by default).
 ## Project Structure
 
 ```
-dutybot/
+.
 ├── bot.py              # Application entrypoint
 ├── config.py            # Environment-driven settings
 ├── scheduler.py          # APScheduler wiring for the weekly job
@@ -44,7 +44,6 @@ dutybot/
 ### Local setup
 
 ```bash
-cd dutybot
 python3.13 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements-dev.txt
