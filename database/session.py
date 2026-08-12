@@ -29,10 +29,20 @@ def _normalise_url(database_url: str) -> str:
 
 
 def init_engine(database_url: str, *, echo: bool = False) -> AsyncEngine:
-    """Create (or return the existing) async engine for ``database_url``."""
+    """Create (or return the existing) async engine for ``database_url``.
+
+    A connect-level timeout is set so an unreachable database fails fast
+    with a clear error instead of hanging the process indefinitely (as
+    happens with no timeout when a host is unreachable or misconfigured).
+    """
     global _engine, _sessionmaker
     if _engine is None:
-        _engine = create_async_engine(_normalise_url(database_url), echo=echo, pool_pre_ping=True)
+        _engine = create_async_engine(
+            _normalise_url(database_url),
+            echo=echo,
+            pool_pre_ping=True,
+            connect_args={"timeout": 10},
+        )
         _sessionmaker = async_sessionmaker(_engine, expire_on_commit=False)
     return _engine
 
