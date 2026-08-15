@@ -58,3 +58,15 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
     if is_admin:
         text += _HELP_ADMIN_EXTRA
     await message.reply_text(text, reply_markup=build_main_menu(is_admin=is_admin))
+
+
+@log_errors
+async def unknown_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Reply to slash commands that do not match a registered command."""
+    message = update.effective_message
+    if message is None:
+        return
+    await message.reply_text(
+        "I received that slash command, but I do not recognise it. "
+        "Use /help for the command list."
+    )

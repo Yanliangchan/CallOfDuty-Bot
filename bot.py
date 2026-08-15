@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import logging
 
-from telegram import Update
+from telegram import BotCommand, Update
 from telegram.ext import Application, ApplicationBuilder, ContextTypes
 
 from config import settings
@@ -17,7 +17,24 @@ logger = logging.getLogger(__name__)
 
 
 async def _on_startup(application: Application) -> None:
-    """Start the background scheduler once the application is running."""
+    """Prepare Telegram state and start background services."""
+    await application.bot.delete_webhook(drop_pending_updates=True)
+    await application.bot.set_my_commands(
+        [
+            BotCommand("start", "Welcome message and command list"),
+            BotCommand("help", "Show command usage"),
+            BotCommand("see_duty", "Show current and next week's duty"),
+            BotCommand("see_past", "Browse past duty rosters"),
+            BotCommand("stats", "Show duty statistics"),
+            BotCommand("personnel", "Manage personnel (admin)"),
+            BotCommand("generate", "Generate next week's roster (admin)"),
+            BotCommand("publish", "Publish the generated roster (admin)"),
+            BotCommand("add_duty", "Import a historical duty roster (admin)"),
+        ]
+    )
+    bot_user = await application.bot.get_me()
+    logger.info("Connected to Telegram as @%s (id=%s)", bot_user.username, bot_user.id)
+
     init_engine(settings.database_url)
     scheduler = build_scheduler(application.bot, settings.timezone)
     scheduler.start()
@@ -55,7 +72,7 @@ def main() -> None:
     register_handlers(application)
     application.add_error_handler(_on_error)
 
-    application.run_polling(allowed_updates=Update.ALL_TYPES)
+    application.run_polling(allowed_updates=Update.ALL_TYPES, drop_pending_updates=True)
 
 
 if __name__ == "__main__":
