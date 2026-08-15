@@ -23,7 +23,8 @@ _HELP_USER = (
     "/see_duty - Show this week's and next week's duty roster\n"
     "/see_past - Browse past weeks' duty rosters\n"
     "/stats - Show duty statistics for everyone\n"
-    "/help - Show this message"
+    "/help - Show this message\n"
+    "/ping - Check whether the bot is receiving commands"
 )
 
 _HELP_ADMIN_EXTRA = (
@@ -58,3 +59,41 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
     if is_admin:
         text += _HELP_ADMIN_EXTRA
     await message.reply_text(text, reply_markup=build_main_menu(is_admin=is_admin))
+
+
+@log_errors
+async def ping_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Handle /ping without touching the database or admin settings."""
+    message = update.effective_message
+    if message is None:
+        return
+    await message.reply_text("pong — I received your command.")
+
+
+@log_errors
+async def log_command_update(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Log slash commands before they are dispatched to their command handler."""
+    message = update.effective_message
+    if message is None or message.text is None:
+        return
+    user = update.effective_user
+    chat = update.effective_chat
+    context.application.logger.info(
+        "Received command text=%r chat_id=%s chat_type=%s user_id=%s",
+        message.text,
+        chat.id if chat else "unknown",
+        chat.type if chat else "unknown",
+        user.id if user else "unknown",
+    )
+
+
+@log_errors
+async def unknown_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Reply to slash commands that do not match a registered command."""
+    message = update.effective_message
+    if message is None:
+        return
+    await message.reply_text(
+        "I received that slash command, but I do not recognise it. "
+        "Use /help for the command list."
+    )
