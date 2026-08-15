@@ -2,12 +2,16 @@
 
 from __future__ import annotations
 
+import logging
+
 from telegram import Update
 from telegram.ext import ContextTypes
 
 from config import settings
 from handlers.common import build_main_menu
 from utils.decorators import log_errors
+
+logger = logging.getLogger(__name__)
 
 _WELCOME = (
     "Welcome to DutyBot!\n\n"
@@ -78,7 +82,7 @@ async def log_command_update(update: Update, context: ContextTypes.DEFAULT_TYPE)
         return
     user = update.effective_user
     chat = update.effective_chat
-    context.application.logger.info(
+    logger.info(
         "Received command text=%r chat_id=%s chat_type=%s user_id=%s",
         message.text,
         chat.id if chat else "unknown",
