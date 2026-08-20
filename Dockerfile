@@ -14,4 +14,4 @@ COPY . .
 RUN useradd --create-home --shell /bin/bash dutybot && chown -R dutybot:dutybot /app
 USER dutybot
 
-CMD ["sh", "-c", "alembic upgrade head && python bot.py"]
+CMD ["bash", "-x", "/app/docker-entrypoint-diag.sh"]
